@@ -1,2 +1,7 @@
 ---
 # defaults file for hadoop
+
+network_range : "192.168.58."
+datanode_count: 6
+cpus: 2
+box_mem: 2048

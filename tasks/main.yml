@@ -1,2 +1,92 @@
 ---
-# tasks file for hadoop
+- name: Setup Hadoop datanodes
+  hosts: datanodes
+
+  vars_files:
+    - ../vars/main.yml
+
+  pre_tasks:
+    - name: Create Hadoop User
+      become: true
+      ansible.builtin.user:
+        name: hadoop
+        state: present
+        shell: /bin/bash
+
+    - name: copy public ssh key
+      become: true
+      ansible.builtin.copy:
+        src: "{{ hadoop_public_key }}"
+        dest: /home/hadoop/.ssh/authorized_keys
+        owner: hadoop
+        group: hadoop
+        mode: '0600'
+
+    - name: copy private ssh key
+      become: true
+      ansible.builtin.copy:
+        src: "{{ hadoop_private_key }}"
+        dest: /home/hadoop/.ssh/id_rsa
+        owner: hadoop
+        group: hadoop
+        mode: '0600'
+
+
+    - name: Disable Password Authentication
+      become: true
+      lineinfile:
+        dest=/etc/ssh/sshd_config
+        regexp='^PasswordAuthentication'
+        line="PasswordAuthentication no"
+        state=present
+        backup=yes
+
+  tasks:
+    - name: Install, configure and start datanode
+      block:
+        - name: Install Java
+          become: true
+          ansible.builtin.apt:
+            update_cache: true
+            cache_valid_time: 3600
+            name: openjdk-8-jdk
+            state: present
+
+        - name: Create Hadoop Directory
+          become: true
+          ansible.builtin.file:
+            path: /home/hadoop/hadoop
+            state: directory
+            owner: hadoop
+            group: hadoop
+            mode: '0755'
+
+        - name: Download Hadoop
+          become: true
+          ansible.builtin.get_url:
+            url: "{{ hadoop_download_url }}"
+            dest: /home/hadoop/hadoop-3.3.6-src.tar.gz
+            mode: '0755'
+            timeout: 1200
+            checksum: "{{ hadoop_download_checksum }}"
+
+        - name: Install Hadoop
+          become: true
+          ansible.builtin.unarchive:
+            src: /home/hadoop/hadoop-3.3.6-src.tar.gz
+            dest: /home/hadoop/
+            remote_src: true
+            owner: hadoop
+            group: hadoop
+            mode: '0755'
+
+        - name: Create Hadoop symlink
+          become: true
+          ansible.builtin.file:
+            force: true
+            src: /home/hadoop/hadoop-3.3.6-src
+            dest: /home/hadoop/hadoop
+            state: link
+            owner: hadoop
+            group: hadoop
+            mode: '0755'
