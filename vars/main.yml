@@ -1,6 +1,6 @@
 ---
 # vars file for hadoop
-hadoop_private_key : /home/pi/hadoop-ansible/temp/hadopik
-hadoop_public_key : /home/pi/hadoop-ansible/temp/hadopik.pub
-hadoop_download_url: https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6-src.tar.gz
-hadoop_download_checksum: sha512:9a919288db245a897aec6794fdd80e1a21f10c5e46dabdbc61280f89a78f27ab9bf8ad9f14329f61f974a3e6d8f54a3e52cd8dbe0c42c34bb04bff773d03f77a
+network_range : "192.168.58."
+datanode_count: 6
+cpus: 2
+box_mem: 2048
