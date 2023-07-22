@@ -1,0 +1,26 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+  become: true
+  become_user: hadoop
+  gather_facts: false
+
+  pre_tasks:
+
+    - name: Start ssh serwer
+      ansible.builtin.command:
+        cmd: '/etc/init.d/ssh start'
+
+    - name: add namenode to /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: '127.0.0.1 nn1'
+
+  tasks:
+    - name: Ensure java is running
+      ansible.builtin.command:
+        cmd: jps
+      register: this
+      failed_when: "'Jps' not in this.stdout"
